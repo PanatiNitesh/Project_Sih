@@ -277,7 +277,6 @@ const newRoadmapData = {
       { level: 6, description: 'Advanced deployment.', nodes: [{ title: 'Serverless Apps', type: 'checkpoint' }] },
     ],
   },
-  // ... (adding abbreviated paths for brevity; in full code, expand all similarly with 6-10 levels, using extracted URLs)
   'System & Network': {
     title: 'Systems & Network Engineer',
     description: '2025 Sys/Net: OS → Networking → Security → Monitoring.',
@@ -300,7 +299,6 @@ const newRoadmapData = {
       { level: 5, description: 'Projects.', nodes: [{ title: 'DS Portfolio', type: 'checkpoint' }] },
     ],
   },
-  // Continue for all others with similar structure, using URLs from tool results (e.g., Blockchain: Solidity course https://www.youtube.com/watch?v=example-solidity from results)
   'Blockchain': {
     title: 'Blockchain Developer',
     description: '2025 Blockchain: Fundamentals → Solidity → DApps → Security.',
@@ -312,7 +310,6 @@ const newRoadmapData = {
       { level: 5, description: 'Security audit.', nodes: [{ title: 'Blockchain Security', type: 'checkpoint' }] },
     ],
   },
-  // ... (abbreviate for response; full code would have all)
 };
 
 // --- Combined Roadmap Data ---
@@ -366,41 +363,56 @@ const motivationalFlow = {
   ],
 };
 
-// --- Helper Components (unchanged) ---
-const RoadmapNode = ({ title, url, type = 'topic', icon, subtitle }) => {
+// --- Helper Components ---
+const RoadmapNode = ({ title, url, type = 'topic', icon, subtitle, theme }) => {
   const isCheckpoint = type === 'checkpoint';
   const isChoice = type === 'choice';
   const isMotivation = type === 'motivation';
   const isFactor = type === 'factor';
+  const primaryColor = theme?.primary || '#7D5AFE';
+  const secondaryColor = theme?.secondary || '#66BB6A';
 
-  const baseClasses = "text-center p-4 m-2 rounded-2xl shadow-xl font-bold text-sm flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-2";
-  const topicClasses = "bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 border-yellow-300";
-  const checkpointClasses = "bg-gradient-to-r from-gray-600 to-gray-800 text-white border-gray-400";
-  const choiceClasses = "bg-gradient-to-r from-purple-400 to-pink-500 text-white border-purple-300";
-  const motivationClasses = "bg-white text-gray-900 border-gray-300 shadow-lg h-28 flex items-center justify-center transform hover:scale-110";
-  const factorClasses = "bg-blue-50 text-blue-900 border-blue-200 text-xs p-3 rounded-xl shadow-md transform hover:scale-105";
-
-  let classes = baseClasses;
-  let IconComp = null;
+  const baseClasses = "text-center p-4 m-2 rounded-2xl shadow-lg font-bold text-sm flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border break-words max-w-full";
+  
+  // Dynamic styles based on type and theme
+  let nodeStyle = {};
+  
   if (isMotivation) {
-    classes += ` ${motivationClasses}`;
-    IconComp = icon ? React.createElement(icon, { className: "w-10 h-10 mb-3 text-gray-600" }) : null;
+    nodeStyle = { backgroundColor: 'white', color: '#1F2937', borderColor: '#E5E7EB' };
   } else if (isFactor) {
-    classes += ` ${factorClasses}`;
-    IconComp = icon ? React.createElement(icon, { className: "w-5 h-5 mb-1 text-blue-600" }) : null;
+    nodeStyle = { backgroundColor: '#EFF6FF', color: '#1E3A8A', borderColor: '#BFDBFE' };
   } else if (isCheckpoint) {
-    classes += ` ${checkpointClasses}`;
+    nodeStyle = { background: 'linear-gradient(to right, #374151, #111827)', color: 'white', borderColor: '#4B5563' };
   } else if (isChoice) {
-    classes += ` ${choiceClasses}`;
+    nodeStyle = { background: 'linear-gradient(to right, #C084FC, #EC4899)', color: 'white', borderColor: '#D8B4FE' };
   } else {
-    classes += ` ${topicClasses}`;
+    // Topic: Use main theme gradient
+    nodeStyle = { background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`, color: 'white', borderColor: primaryColor };
   }
 
+  const hoverClass = isMotivation ? "hover:scale-110" : "hover:scale-105";
+
+  let IconComp = null;
+  if (isMotivation) {
+    IconComp = icon ? React.createElement(icon, { className: "w-10 h-10 mb-3 text-gray-600" }) : null;
+  } else if (isFactor) {
+    IconComp = icon ? React.createElement(icon, { className: "w-5 h-5 mb-1 text-blue-600" }) : null;
+  }
+
+  // Styles for width to prevent overflow
+  const layoutStyle = {
+    minWidth: isMotivation || isFactor ? 'auto' : '140px',
+    width: isMotivation || isFactor ? '100%' : 'auto', 
+    maxWidth: '220px', 
+    minHeight: isMotivation ? '140px' : '60px',
+    ...nodeStyle
+  };
+
   const nodeContent = (
-    <div className={classes} style={{ minWidth: isMotivation || isFactor ? '180px' : '140px', minHeight: isMotivation ? 'auto' : '60px' }}>
+    <div className={`${baseClasses} ${hoverClass}`} style={layoutStyle}>
       {IconComp}
       {url ? <Play className="w-5 h-5 mb-1" /> : null}
-      <div className={isMotivation ? "text-base mt-1" : isFactor ? "text-xs font-medium" : "text-sm"}>{title}</div>
+      <div className={isMotivation ? "text-base mt-1 font-bold" : isFactor ? "text-xs font-medium" : "text-sm"}>{title}</div>
       {subtitle && <div className="text-xs opacity-80 mt-1 italic">{subtitle}</div>}
     </div>
   );
@@ -411,41 +423,50 @@ const RoadmapNode = ({ title, url, type = 'topic', icon, subtitle }) => {
   return nodeContent;
 };
 
-const FlowVisualization = ({ flow, isMotivational = false }) => {
+const FlowVisualization = ({ flow, isMotivational = false, theme }) => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [viewMode, setViewMode] = useState('step');
   const maxLevel = flow.path.length - 1;
+  const primaryColor = theme?.primary || '#7D5AFE';
+  const secondaryColor = theme?.secondary || '#66BB6A';
 
   const goPrev = () => setCurrentLevel(prev => Math.max(0, prev - 1));
   const goNext = () => setCurrentLevel(prev => Math.min(maxLevel, prev + 1));
   const toggleView = () => setViewMode(viewMode === 'step' ? 'full' : 'step');
 
+  // --- FIXED: Responsive Motivational Flow ---
   if (isMotivational) {
     return (
       <div className="flex flex-col items-center animate-fade-in w-full">
-        <h2 className="text-4xl font-bold text-center mb-4 text-white">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
           {flow.title}
         </h2>
-        <p className="text-gray-300 text-center mb-12 max-w-4xl">{flow.description}</p>
+        <p className="text-gray-600 text-center mb-12 max-w-4xl px-4">{flow.description}</p>
         
-        <div className="flex items-center justify-center w-full max-w-6xl space-x-8">
+        {/* Changed from fixed flex-row to responsive flex-col (mobile) -> flex-row (desktop) */}
+        <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-0 lg:gap-4">
           {flow.path.map((level, levelIndex) => (
             <Fragment key={level.level || levelIndex}>
-              <div className="flex flex-col items-center min-w-[200px]">
+              <div className="flex flex-col items-center w-full lg:w-auto">
                 {level.description && (
-                  <div className="bg-gray-800 border border-gray-600 rounded-xl p-3 mb-3 max-w-sm text-center">
-                    <p className="text-gray-300 text-xs">{level.description}</p>
+                  <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-3 mb-3 max-w-xs text-center">
+                    <p className="text-gray-600 text-xs">{level.description}</p>
                   </div>
                 )}
-                <div className="flex flex-col items-center space-y-2 mb-4">
+                <div className="flex flex-col items-center space-y-4 mb-4 w-full">
                   {level.nodes.map((node, idx) => (
-                    <RoadmapNode key={node.title || idx} {...node} />
+                    <RoadmapNode key={node.title || idx} {...node} theme={theme} />
                   ))}
                 </div>
               </div>
+              
+              {/* Connector: Vertical Line on Mobile, Horizontal on Desktop */}
               {levelIndex < flow.path.length - 1 && (
-                <div className="flex items-center min-w-[120px]">
-                  <div className="w-20 h-1 bg-gray-500 rounded-full"></div>
+                <div className="flex items-center justify-center my-2 lg:my-0">
+                  {/* Vertical Line (Mobile) */}
+                  <div className="w-1 h-12 bg-gray-300 rounded-full lg:hidden"></div>
+                  {/* Horizontal Line (Desktop) */}
+                  <div className="hidden lg:block h-1 w-16 bg-gray-300 rounded-full"></div>
                 </div>
               )}
             </Fragment>
@@ -455,30 +476,36 @@ const FlowVisualization = ({ flow, isMotivational = false }) => {
     );
   }
 
-  // Rest of FlowVisualization unchanged...
+  // --- Standard Roadmap Visualization ---
   const renderLevel = (level, levelIndex) => (
-    <div key={level.level || levelIndex} className="flex flex-col items-center mb-8">
+    <div key={level.level || levelIndex} className="flex flex-col items-center mb-8 w-full">
       {level.description && (
-        <div className={`p-4 rounded-xl mb-4 text-center ${isMotivational ? 'bg-green-900/30 border-green-500' : 'bg-blue-900/20 border-blue-500'}`}>
-          <p className={`${isMotivational ? 'text-green-200' : 'text-blue-200'}`}>{level.description}</p>
+        <div className={`p-4 rounded-xl mb-4 text-center max-w-2xl border ${isMotivational ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+          <p className={`${isMotivational ? 'text-green-800' : 'text-blue-800'}`}>{level.description}</p>
         </div>
       )}
-      <div className="flex flex-wrap justify-center items-center gap-4">
+      <div className="flex flex-wrap justify-center items-center gap-4 w-full">
         {level.nodes.map((node, idx) => (
-          <RoadmapNode key={node.title || idx} {...node} />
+          <RoadmapNode key={node.title || idx} {...node} theme={theme} />
         ))}
       </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col items-center animate-fade-in">
-      <h2 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">{flow.title}</h2>
-      <p className="text-gray-400 text-center mb-10 max-w-2xl">{flow.description}</p>
+    <div className="flex flex-col items-center animate-fade-in w-full">
+      <h2 
+        className="text-3xl font-bold text-center mb-2 bg-clip-text text-transparent"
+        style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}
+      >
+        {flow.title}
+      </h2>
+      <p className="text-gray-600 text-center mb-10 max-w-2xl px-4">{flow.description}</p>
       
       <button 
         onClick={toggleView}
-        className="mb-6 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl transition-all hover:scale-105 shadow-lg"
+        className="mb-6 px-6 py-2 text-white rounded-xl transition-all hover:scale-105 shadow-lg"
+        style={{ background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}
       >
         {viewMode === 'step' ? 'Full Flow View' : 'Step-by-Step'}
       </button>
@@ -487,11 +514,16 @@ const FlowVisualization = ({ flow, isMotivational = false }) => {
         <>
           {renderLevel(flow.path[currentLevel], currentLevel)}
           <div className="flex gap-4 mb-8">
-            <button onClick={goPrev} disabled={currentLevel === 0} className="px-6 py-2 bg-gray-700 text-white rounded-xl disabled:opacity-50 flex items-center gap-2 hover:bg-gray-600">
+            <button onClick={goPrev} disabled={currentLevel === 0} className="px-6 py-2 bg-gray-200 text-gray-800 rounded-xl disabled:opacity-50 flex items-center gap-2 hover:bg-gray-300 shadow-sm transition-colors">
               <ArrowLeft size={16} /> Prev
             </button>
-            <span className="text-gray-300 self-center">Step {currentLevel + 1} / {maxLevel + 1}</span>
-            <button onClick={goNext} disabled={currentLevel === maxLevel} className="px-6 py-2 bg-blue-600 text-white rounded-xl disabled:opacity-50 flex items-center gap-2 hover:bg-blue-700">
+            <span className="text-gray-600 self-center font-medium">Step {currentLevel + 1} / {maxLevel + 1}</span>
+            <button 
+              onClick={goNext} 
+              disabled={currentLevel === maxLevel} 
+              className="px-6 py-2 text-white rounded-xl disabled:opacity-50 flex items-center gap-2 shadow-lg transition-colors"
+              style={{ backgroundColor: primaryColor }}
+            >
               Next <ArrowRight size={16} />
             </button>
           </div>
@@ -500,7 +532,12 @@ const FlowVisualization = ({ flow, isMotivational = false }) => {
         <div className="flex flex-col items-center w-full space-y-4">
           {flow.path.map((level, levelIndex) => (
             <Fragment key={level.level || levelIndex}>
-              {levelIndex > 0 && <div className="h-16 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>}
+              {levelIndex > 0 && (
+                <div 
+                  className="h-16 w-1 rounded-full" 
+                  style={{ background: `linear-gradient(to bottom, ${primaryColor}50, ${secondaryColor}50)` }}
+                ></div>
+              )}
               {renderLevel(level, levelIndex)}
             </Fragment>
           ))}
@@ -510,8 +547,10 @@ const FlowVisualization = ({ flow, isMotivational = false }) => {
   );
 };
 
-const SearchScreen = ({ onSelectRoadmap, onSearch, searchResults }) => {
+const SearchScreen = ({ onSelectRoadmap, onSearch, searchResults, theme }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const primaryColor = theme?.primary || '#7D5AFE';
+  const secondaryColor = theme?.secondary || '#66BB6A';
 
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -526,26 +565,47 @@ const SearchScreen = ({ onSelectRoadmap, onSearch, searchResults }) => {
 
   return (
     <div className="text-center animate-fade-in">
-      <header className="mb-12">
-        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Developer Roadmaps 2025</h1>
-        <p className="text-xl text-gray-300">Student-friendly guides to tech mastery. Inspired by <a href="https://roadmap.sh" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">roadmap.sh</a>. Easy steps, real projects!</p>
+      <header className="mb-12 px-4">
+        <h1 
+          className="text-4xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent"
+          style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}
+        >
+          Developer Roadmaps 2025
+        </h1>
+        <p className="text-lg md:text-xl text-gray-600">Student-friendly guides to tech mastery. Easy steps, real projects!</p>
       </header>
-      <div className="relative max-w-xl mx-auto mb-8">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={24} />
+      <div className="relative max-w-xl mx-auto mb-8 px-4">
+        <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-400" size={24} />
         <input
           type="text"
           placeholder="Search roadmap (e.g., React, DevOps, Blockchain)..."
           onChange={(e) => handleSearch(e.target.value)}
-          className="bg-gray-800 border-2 border-gray-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-lg shadow-lg"
+          className="bg-white border-2 border-gray-200 rounded-xl pl-12 pr-4 py-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 w-full text-lg shadow-lg"
+          style={{ '--tw-ring-color': primaryColor }}
         />
+        <style>{`
+          input:focus {
+            box-shadow: 0 0 0 2px ${primaryColor} !important;
+            border-color: transparent;
+          }
+        `}</style>
       </div>
       {searchResults.length > 1 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto mb-20 px-4">
           {searchResults.map(key => (
             <button
               key={key}
               onClick={() => onSelectRoadmap(key)}
-              className="px-8 py-4 rounded-xl font-semibold transition-all bg-gradient-to-r from-gray-700 to-gray-600 text-gray-200 hover:from-blue-600 hover:to-purple-600 hover:text-white transform hover:scale-105 shadow-lg"
+              className="px-8 py-4 rounded-xl font-semibold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transform hover:scale-105 shadow-md"
+              style={{ ':hover': { borderColor: primaryColor, color: primaryColor } }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = primaryColor;
+                e.target.style.color = primaryColor;
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#e5e7eb';
+                e.target.style.color = '#374151';
+              }}
             >
               {roadmapData[key].title}
             </button>
@@ -553,17 +613,20 @@ const SearchScreen = ({ onSelectRoadmap, onSearch, searchResults }) => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto mb-16">
-        <FlowVisualization flow={motivationalFlow} isMotivational={true} />
+      <div className="max-w-7xl mx-auto mb-16 px-4">
+        <FlowVisualization flow={motivationalFlow} isMotivational={true} theme={theme} />
       </div>
     </div>
   );
 };
 
-// --- Main App Component (unchanged) ---
-export default function App() {
+// --- Main App Component ---
+export default function Roadmap({ theme }) {
   const [selectedRoadmapKey, setSelectedRoadmapKey] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const primaryColor = theme?.primary || '#7D5AFE';
+  const secondaryColor = theme?.secondary || '#66BB6A';
 
   const searchResults = useMemo(() => {
     if (!searchTerm) {
@@ -577,7 +640,7 @@ export default function App() {
   const currentRoadmap = selectedRoadmapKey ? roadmapData[selectedRoadmapKey] : null;
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen font-sans p-4 md:p-8">
+    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 min-h-screen font-sans p-2 md:p-8 overflow-x-hidden">
       <style>{`
         @keyframes fade-in {
             from { opacity: 0; transform: translateY(20px); }
@@ -585,23 +648,23 @@ export default function App() {
         }
         .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
       `}</style>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto w-full">
         {currentRoadmap ? (
-          <div className="relative">
+          <div className="relative w-full">
             <button 
               onClick={() => setSelectedRoadmapKey(null)} 
-              className="absolute -top-6 left-0 flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg z-10"
+              className="absolute -top-6 left-0 flex items-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-3 px-6 rounded-xl transition-all shadow-md z-10"
             >
               <ArrowLeft size={20} /> Back to Home
             </button>
-            <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl mt-12 border border-gray-700">
-              <FlowVisualization flow={currentRoadmap} />
+            <div className="bg-white/80 backdrop-blur-md p-4 md:p-8 rounded-2xl shadow-2xl mt-12 border border-white/50 w-full overflow-hidden">
+              <FlowVisualization flow={currentRoadmap} theme={theme} />
             </div>
           </div>
         ) : (
-          <SearchScreen onSelectRoadmap={setSelectedRoadmapKey} onSearch={setSearchTerm} searchResults={searchResults} />
+          <SearchScreen onSelectRoadmap={setSelectedRoadmapKey} onSearch={setSearchTerm} searchResults={searchResults} theme={theme} />
         )}
-        <footer className="text-center text-gray-400 mt-16 text-sm border-t border-gray-700 pt-8">
+        <footer className="text-center text-gray-500 mt-16 text-sm border-t border-gray-200 pt-8 px-4">
           <p>🌟 Click yellow boxes for 2025 YouTube courses. Step-by-step for easy learning. Build, practice, succeed!</p>
           <p>Created for students | Educational use only</p>
         </footer>
