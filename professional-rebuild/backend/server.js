@@ -4801,9 +4801,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-<<<<<<< HEAD
-
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} (AI provider: ${aiProvider || 'none'})`));
-=======
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
->>>>>>> 1d040d4e (Fix: Robust CORS configuration and middleware ordering in server.js)
