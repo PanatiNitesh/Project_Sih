@@ -1,14 +1,49 @@
-# CampusVersa – Unified Education Platform (SIH Project)
+# CampusVersa – Unified Education Platform (SIH-25252)
+
+[![SIH 2025](https://img.shields.io/badge/Smart%20India%20Hackathon-2025-blue.svg)](https://www.sih.gov.in/)
+[![React 19](https://img.shields.io/badge/React-19.2-61dafb.svg)](https://react.dev/)
+[![TailwindCSS v4](https://img.shields.io/badge/TailwindCSS-v4.1-38bdf8.svg)](https://tailwindcss.com/)
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL-000000.svg)](https://threejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+---
 
 ## 1. Project Overview
 
-CampusVersa is a role-based, real-time Unified Education Platform developed as part of Smart India Hackathon (SIH). The system connects **Students, Faculty, Institutes, and Central Admin** under a single digital ecosystem to manage academics, compliance, analytics, communication, and AI-assisted features.
+CampusVersa is a role-based, real-time Unified Education Platform engineered for the **Smart India Hackathon (SIH 2025)** under Problem Statement **SIH-25252**. The platform bridges **Students, Faculty, Institutes, and Regulatory Authorities** under an interconnected digital nervous system to manage academic workflows, compliance tracking, real-time notices, and verifiable credential verification.
 
-The platform is designed to solve fragmentation in academic data, poor communication flows, and lack of real-time visibility across stakeholders.
+Unlike fragmented institutional setups where attendance sits in paper logs, circulars leak across WhatsApp groups, and NAAC criteria require frantic manual spreadsheet collation, CampusVersa synchronizes all four actors into an auditable event state.
 
---
+---
 
-## 2. System Actors & Responsibilities
+## 2. UI/UX Design System & Architectural Principles
+
+The frontend has been rebuilt with a strict **anti-slop, editorial design philosophy**:
+
+* **Archival & High-Contrast Palette**: 
+  - Ground: `#FBF9F5` (warm parchment)
+  - Ink: `#111215` (deep carbon ink)
+  - Secondary: `#504D48`
+  - Rule: `#E3DDD4`
+  - Sharp Accent: `#D9381E` (Signal Vermilion / International Orange)
+* **Distinguished Typography**:
+  - Display: `Instrument Serif` (editorial serif with tight tracking and high contrast)
+  - Body: `Plus Jakarta Sans`
+  - Monospace: `JetBrains Mono` for cryptographic hashes, metrics, and socket telemetry.
+* **Besepoke 3D Campus Topology (`CampusScene3D`)**:
+  - Built with custom Three.js geometry without generic template shapes or wobbly blobs.
+  - Four distinct polyhedral anchors: `Student` (Icosahedron), `Faculty` (Octahedron), `Institute` (Dodecahedron), `Central Authority` (Tetrahedron).
+  - Dynamic quadratic bezier curves carrying luminous data packets (attendance telemetry, notice broadcasts, accreditation metrics).
+  - Responsive camera aspect & fov damping with `ResizeObserver` ensuring ≥ 8% padding around outermost nodes across any display dimension (1280x720 up to 1920x1080+).
+  - Performance optimization: DPR clamped to ≤ 1.75, off-screen animation loop paused via `IntersectionObserver`, and lazy-loaded via `React.lazy` + `Suspense` with an architectural SVG blueprint fallback.
+* **Strict First-Viewport Architecture**:
+  - The hero title, thesis copy, 4-node topology switcher, direct portal CTA, and the entire 3D viewer card are guaranteed to fit within `100vh` without clipping or requiring scrolling.
+  - Active node context details and verification metrics transition cleanly below the fold.
+  - Full-width screen utilization (`w-full px-4 sm:px-6 lg:px-8`) with zero horizontal scrollbar on all viewports (360px to 1920px).
+
+---
+
+## 3. System Actors & Responsibilities
 
 ### 2.1 Student
 
@@ -263,7 +298,39 @@ Relationships are normalized and indexed for performance.
 
 ---
 
-## 10. Conclusion
+## 10. Local Development Setup
+
+### 10.1 Running the Rebuilt Frontend (`unifiededu`)
+
+```bash
+# Navigate to the professional rebuild frontend
+cd professional-rebuild/unifiededu
+
+# Install dependencies (React 19, Tailwind v4, Three.js, Lucide)
+npm install
+
+# Start development server
+npm run dev
+# The landing page will be accessible at http://localhost:5173/
+
+# Run ESLint validation
+npm run lint
+
+# Build for production
+npm run build
+```
+
+### 10.2 Running the Backend API Server
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+---
+
+## 11. Conclusion
 
 CampusVersa is not just a college ERP. It is a **governance-grade education platform** built with real-world constraints, compliance needs, and scalability in mind. The architecture supports future AI integrations, national education policies, and seamless multi-role collaboration.
 

@@ -185,3 +185,59 @@ select, input[type="text"], input[type="search"], .glass-dropdown-toggle {
 /* ---------- quick theme override via attribute on root element ---------- */
 /* e.g., <html data-theme='institute-123' style="--primary:#0ea5a4;--text-on-primary:#fff"> */
 [data-theme] { /* intentionally empty, CSS vars used inline */ }
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ---------- CampusVersa Editorial Design Tokens ---------- */
+:root {
+  --nav-h: 64px;
+  --cv-ground: #FBF9F5;
+  --cv-ground-card: #FFFFFF;
+  --cv-ground-muted: #F4EFEB;
+  --cv-ink: #111215;
+  --cv-ink-secondary: #504D48;
+  --cv-ink-tertiary: #8A857D;
+  --cv-rule: #E3DDD4;
+  --cv-rule-dark: #2A2A2E;
+  --cv-vermilion: #D9381E;
+  --cv-vermilion-subtle: #FDF1EE;
+  --cv-font-display: 'Instrument Serif', Georgia, serif;
+  --cv-font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --cv-font-mono: 'JetBrains Mono', monospace;
+}
+
+.font-display {
+  font-family: var(--cv-font-display);
+}
+
+.font-sans-body {
+  font-family: var(--cv-font-sans);
+}
+
+.font-mono-code {
+  font-family: var(--cv-font-mono);
+}
+
+.landing-grid-bg {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+.landing-hairline-b {
+  border-bottom: 1px solid var(--cv-rule);
+}
+.landing-hairline-t {
+  border-top: 1px solid var(--cv-rule);
+}
+.landing-hairline-r {
+  border-right: 1px solid var(--cv-rule);
+}
+.landing-hairline-l {
+  border-left: 1px solid var(--cv-rule);
+}
+
