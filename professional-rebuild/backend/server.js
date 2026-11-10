@@ -77,7 +77,6 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
 }));
 app.use(express.json({ limit: "10mb" }));
-app.options("*", cors()); // Explicitly handle OPTIONS for all routes
 const server = http.createServer(app); // Wrap express
 const io = new Server(server, {
   cors: {
