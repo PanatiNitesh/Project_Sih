@@ -37,7 +37,7 @@ export default function HeroSection({
   const current = roleSummaries[activeRole] || roleSummaries.student;
 
   return (
-    <section className="relative bg-[#FBF9F5] landing-hairline-b overflow-hidden">
+    <section id="hero-section" className="relative bg-[#FBF9F5] landing-hairline-b overflow-hidden">
       {/* Background Architectural Grid Lines */}
       <div className="absolute inset-0 landing-grid-bg pointer-events-none opacity-40" />
 

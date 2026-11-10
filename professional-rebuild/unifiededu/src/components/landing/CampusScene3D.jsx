@@ -270,35 +270,69 @@ export default function CampusScene3D({
       overview: { x: 0, y: 0, z: 11, rotY: 0 },
     };
 
-    // Scroll progression tracking
+    // Scroll progression & Hero visibility tracking
     let scrollProgress = 0;
-    const onScroll = () => {
+    let isPastHero = false;
+
+    const checkHeroScrollState = () => {
+      const heroEl = document.getElementById('hero-section') || container.closest('section');
+      if (heroEl) {
+        const rect = heroEl.getBoundingClientRect();
+        // Once the bottom of the hero section is at or above the viewport, user has scrolled past it
+        isPastHero = rect.bottom <= 0;
+      } else {
+        isPastHero = window.scrollY > 600;
+      }
+
       const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
       if (scrollMax > 0) {
         scrollProgress = Math.min(Math.max(window.scrollY / scrollMax, 0), 1);
       }
     };
+
+    const onScroll = () => {
+      checkHeroScrollState();
+      // If user scrolls back up into hero, resume animation loop if stopped
+      if (!isPastHero && isVisible && !animationFrameId && !prefersReducedMotion) {
+        animate();
+      }
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    checkHeroScrollState();
 
     // Render loop and IntersectionObserver
-    let animationFrameId;
+    let animationFrameId = null;
     let isVisible = true;
     let clock = new THREE.Clock();
 
+    const heroEl = document.getElementById('hero-section') || container;
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry.isIntersecting;
-        if (isVisible && !animationFrameId && !prefersReducedMotion) {
+        if (isVisible && !isPastHero && !animationFrameId && !prefersReducedMotion) {
           animate();
+        } else if (!isVisible || isPastHero) {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+          }
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.0 }
     );
-    observer.observe(container);
+    observer.observe(heroEl);
 
     const animate = () => {
-      if (!isVisible) return;
+      checkHeroScrollState();
+
+      // Stop mesh components rotation and rendering once scrolled past hero section or not visible
+      if (!isVisible || isPastHero) {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        return;
+      }
 
       const elapsed = clock.getElapsedTime();
 
@@ -317,7 +351,7 @@ export default function CampusScene3D({
       camera.lookAt(0, 0, 0);
 
       // Subtle gentle rotation of entire campus group with scroll influence
-      if (!prefersReducedMotion) {
+      if (!prefersReducedMotion && !isPastHero) {
         campusGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.18 + targetCfg.rotY + (scrollProgress * 0.4);
         campusGroup.rotation.x = Math.cos(elapsed * 0.15) * 0.08 + (scrollProgress * 0.12);
 
