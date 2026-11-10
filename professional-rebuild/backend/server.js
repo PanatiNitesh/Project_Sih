@@ -4840,6 +4840,128 @@ app.post('/api/ai/generate', async (req, res) => {
   }
 });
 
+// --- SEED RV ACCOUNTS (INSTITUTE, FACULTY, STUDENT) ---
+app.post('/api/seed/rv-accounts', async (req, res) => {
+  try {
+    // 1. Create or Update RV Institute
+    let institute = await Institute.findOne({ code: 'RVCE' });
+    if (!institute) {
+      institute = new Institute({
+        IID: 'INST-RVCE-01',
+        name: 'RV College of Engineering',
+        code: 'RVCE',
+        collegeNumber: 1001,
+        email: 'admin@rvce.edu.in',
+        password: 'rvcepassword123',
+        status: 'Active',
+        themeColorPrimary: '#1e3a8a',
+        themeColorSecondary: '#3b82f6',
+        phone: '080-68188100',
+        address: 'Mysore Road, Bengaluru',
+        state: 'Karnataka',
+        pincode: '560059',
+      });
+      await institute.save();
+    } else {
+      institute.status = 'Active';
+      institute.password = 'rvcepassword123';
+      await institute.save();
+    }
+
+    // 2. Ensure CSE Department exists
+    let dept = await Department.findOne({ instituteId: institute._id, code: 'CSE' });
+    if (!dept) {
+      dept = new Department({
+        instituteId: institute._id,
+        name: 'Computer Science and Engineering',
+        code: 'CSE',
+        facultyCount: 1,
+        studentCount: 1
+      });
+      await dept.save();
+    }
+
+    // 3. Create or Update Faculty (Prof. Masood)
+    const facultyEmail = 'masood@rvce.edu.in';
+    const fid = '1001RVCECSE001';
+    let faculty = await Faculty.findOne({ $or: [{ email: facultyEmail }, { FID: fid }] });
+    if (!faculty) {
+      faculty = new Faculty({
+        instituteId: institute._id,
+        FID: fid,
+        name: 'Prof. Masood',
+        email: facultyEmail,
+        password: 'masoodpassword123',
+        department: 'CSE',
+        designation: 'Assistant Professor',
+        qualification: 'M.Tech, Ph.D',
+        experience: '8 Years',
+        themeColorPrimary: institute.themeColorPrimary,
+        themeColorSecondary: institute.themeColorSecondary,
+        kyc: { verified: true, kycType: 'aadhar' },
+        research: {
+          papersPublished: 12,
+          citations: 84,
+          hIndex: 5,
+          projectsGuided: 18
+        }
+      });
+      await faculty.save();
+    } else {
+      faculty.password = 'masoodpassword123';
+      faculty.email = facultyEmail;
+      faculty.name = 'Prof. Masood';
+      await faculty.save();
+    }
+
+    // 4. Create or Update Student (Vedanth)
+    const studentEmail = 'vedanth@rvce.edu.in';
+    const sid = '1RV22CS001';
+    let student = await Student.findOne({ email: studentEmail });
+    if (!student) {
+      student = new Student({
+        instituteId: institute._id,
+        SID: sid,
+        rollNumber: sid,
+        name: 'Vedanth',
+        email: studentEmail,
+        password: 'vedanthpassword123',
+        department: 'CSE',
+        year: '3',
+        semester: '5',
+        phone: '9876543210',
+        kyc: { verified: true, kycType: 'aadhar' },
+        attendance: {
+          overallPercentage: 92,
+          alertLevel: 'Safe'
+        },
+        academic: {
+          cgpa: 8.9,
+          creditsEarned: 110
+        }
+      });
+      await student.save();
+    } else {
+      student.password = 'vedanthpassword123';
+      student.name = 'Vedanth';
+      await student.save();
+    }
+
+    return res.json({
+      success: true,
+      message: 'All 3 accounts (RV Institute, Faculty Masood, Student Vedanth) successfully created and ready to log in!',
+      accounts: {
+        institute: { email: 'admin@rvce.edu.in', password: 'rvcepassword123', url: '/in/auth' },
+        faculty: { fid: '1001RVCECSE001', email: 'masood@rvce.edu.in', password: 'masoodpassword123', url: '/fc/auth' },
+        student: { email: 'vedanth@rvce.edu.in', password: 'vedanthpassword123', url: '/student/auth' }
+      }
+    });
+  } catch (err) {
+    console.error('Seeding error:', err);
+    return res.status(500).json({ error: 'Failed to seed accounts', details: err.message });
+  }
+});
+
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal Server Error' });
