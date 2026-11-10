@@ -53,13 +53,14 @@ async function seed() {
     if (!dept) {
       dept = new Department({
         instituteId: institute._id,
+        DID: "RVCE-CSE-001",
         name: "Computer Science and Engineering",
         code: "CSE",
         facultyCount: 1,
         studentCount: 1
       });
       await dept.save();
-      console.log("✅ Created Department: CSE");
+      console.log("✅ Created Department: CSE (DID: RVCE-CSE-001)");
     }
 
     // 2. Create or Update Faculty (Masood)

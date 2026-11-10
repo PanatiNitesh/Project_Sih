@@ -4873,6 +4873,7 @@ app.post('/api/seed/rv-accounts', async (req, res) => {
     if (!dept) {
       dept = new Department({
         instituteId: institute._id,
+        DID: 'RVCE-CSE-001',
         name: 'Computer Science and Engineering',
         code: 'CSE',
         facultyCount: 1,
