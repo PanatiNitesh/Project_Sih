@@ -158,12 +158,21 @@ app.put("/institute/courses/:id", verifyToken, async (req, res) => {
 // -------------------
 // Database Connect
 // -------------------
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => {
-    console.error('❌ MongoDB connection failed:', err);
-    process.exit(1);
-  });
+const connectDB = async () => {
+  if (!process.env.MONGO_URI) {
+    console.warn('⚠️ MONGO_URI environment variable is not defined.');
+    return;
+  }
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err.message || err);
+    console.log('🔄 Will retry MongoDB connection in 10 seconds...');
+    setTimeout(connectDB, 10000);
+  }
+};
+connectDB();
 
 // Helper: Convert Marks to Grade Point based on VTU Scheme (2021/2022)
 const getGradePoint = (marks) => {
